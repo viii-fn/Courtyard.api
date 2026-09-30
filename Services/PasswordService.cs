@@ -1,6 +1,6 @@
 using BCryptNet = BCrypt.Net.BCrypt;
 
-namespace VidPixar.Api.Services;
+namespace Courtyard.api.Services;
 
 public interface IPasswordService
 {

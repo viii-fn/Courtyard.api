@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace VidPixar.Api.Options;
+namespace Courtyard.api.Options;
 
 public class JwtOptions
 {
