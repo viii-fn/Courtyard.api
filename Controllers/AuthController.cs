@@ -94,10 +94,10 @@ public class AuthController : ControllerBase
 		var invalid = Unauthorized(new { message = "Invalid refresh token." });
 		if (stored is null) return invalid;
 
-		if (stored.RevokedAAt is not null)
+		if (stored.RevokedAt is not null)
 		{
 			var active = await _db.RefreshTokens
-				.Where(t => t.UserId == stored.UserId && t.RevokedAt == nul)
+				.Where(t => t.UserId == stored.UserId && t.RevokedAt == null)
 				.ToListAsync();
 
 			foreach (var t in active) t.RevokedAt = DateTime.UtcNow;
@@ -105,7 +105,7 @@ public class AuthController : ControllerBase
 			return invalid;
 		}
 
-		if (DateTime.UtcNow >= stored.ExpiredAt) return invalid;
+		if (DateTime.UtcNow >= stored.ExpiresAt) return invalid;
 
 		stored.RevokedAt = DateTime.UtcNow;
 		return Ok(await IssueTokensAsync(stored.User));
@@ -115,7 +115,7 @@ public class AuthController : ControllerBase
 	public async Task<IActionResult> Logout(RefreshRequest req)
 	{
 		var hash = TokenService.Hash(req.RefreshToken);
-		var stored = await _db.ReferenceTokens.FirstOrDefaultAsync(t => t.TokenHash == hash);
+		var stored = await _db.RefreshTokens.FirstOrDefaultAsync(t => t.TokenHash == hash);
 		
 		if (stored is not null && stored.RevokedAt is null)
 		{
