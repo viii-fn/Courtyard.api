@@ -1,0 +1,26 @@
+{
+  "author": "Elvis",
+  "classifications": [ "Web", "API", "Auth" ],
+  "identity": "Courtyard.AuthApi.Template",
+  "name": "Courtyard Auth API",
+  "shortName": "courtyardauth",
+  "tags": { "language": "C#", "type": "project" },
+  "sourceName": "Courtyard.api",
+  "preferNameDirectory": true,
+  "sources": [
+    {
+      "exclude": [
+        "**/bin/**",
+        "**/obj/**",
+        "**/.git/**",
+        "**/.vs/**",
+        "**/*.db",
+        "**/*.db-shm",
+        "**/*.db-wal",
+        "**/Migrations/**",
+        "README.md",
+        "STRUCTURE.md"
+      ]
+    }
+  ]
+}
