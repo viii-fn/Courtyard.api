@@ -11,3 +11,11 @@ public class AuthRequest
 	public string Password { get; set; } = string.Empty;
 }
 
+public class RefreshRequest
+{
+	[Required]
+	public string RefreshToken { get; set; } = string.Empty;
+}
+
+public record AuthResponse(string AccessToken, string RefreshToken);
+

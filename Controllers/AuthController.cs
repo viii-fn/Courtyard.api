@@ -79,7 +79,7 @@ public class AuthController : ControllerBase
 	{
 		var userId = User.FindFirst("userId")?.Value;
 		var email = User.FindFirst("email")?.Value;
-		return Ok(new { userId, email })
+		return Ok(new { userId, email });
 	}
 
 	[HttpPost("refresh")]
