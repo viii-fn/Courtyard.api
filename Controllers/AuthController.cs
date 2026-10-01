@@ -15,10 +15,11 @@ public class AuthController : ControllerBase
 	private readonly AppDbContext _db;
 	private readonly TokenService _tokens;
 
-	public AuthController(AppDbContext db, TokenService tokens)
+	public AuthController(AppDbContext db, TokenService tokens, IPasswordService passwords)
 	{
 		_db = db;
 		_tokens = tokens;
+		_passwords = passwords;
 	}
 
 	[HttpPost("signup")]
@@ -31,7 +32,7 @@ public class AuthController : ControllerBase
 		var user = new User
 		{
 			Email = email,
-			PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.Password)
+			PasswordHash = passwords.Hash(req.Password)
 		};
 
 		_db.Users.Add(user);
@@ -48,7 +49,7 @@ public async Task<IActionResult> Login(AuthRequest req)
 
 	var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
 
-	if (user is null || !Bcrypt.Net.BCrypt.Verify(req.Password, user.PasswordHash)) return Unauthorized(new { token = _tokens.CreateToken(user) });
+	if (user is null || !_passwords.Verify(req.Password, user.PasswordHash)) return Unauthorized(new { token = _tokens.CreateToken(user) });
 
 	[Authorize]
 	[HttpGet("me")]
