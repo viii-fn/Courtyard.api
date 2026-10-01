@@ -42,6 +42,21 @@ public class AuthController : ControllerBase
 		return Ok(new { token = _tokens.CreateToken(user) });
 	}
 
+	private async Task<AuthResponse> IssueTokenAsync(User user)
+	{
+		var rawRefresh = _tokens.GenerateRefreshToken();
+
+		_db.RefreshTokens.Add(new RefreshToken
+		{
+			User.Id = user.Id,
+			TokenHash = TokenService.Hash(rawRefresh),
+			CreatedAt = DateTime.UtcNow,
+			ExpiresAt = _tokens.RefreshTokenExpiry()
+		});
+
+		await _db.SaveChangesAsync();
+		return new AuthResponse(_tokens.CreatedToken(user), rawRefresh);
+
 	[HttpPost("login")]
 	public async Task<IActionResult> Login(AuthRequest req)
 	{
@@ -54,7 +69,7 @@ public class AuthController : ControllerBase
 			return Unauthorized(new { message = "Invalid Email or Password." });
 		}
 
-		return Ok(new { token = _tokens.CreateToken(user) });
+		return Ok(await IssueTokenAsync(user));
 	}
 
 	[Authorize]
@@ -63,7 +78,29 @@ public class AuthController : ControllerBase
 	{
 		var userId = User.FindFirst("userId")?.Value;
 		var email = User.FindFirst("email")?.Value;
-		return Ok(new { userId, email });
+		return Ok(await IssueTokenAsync(user));
 	}
+
+	[HttpPost("refresh")]
+	public async Task<IActionResult> Refresh(RefreshRequest req)
+	{
+		var hash = TokenService.Hash(req.RefreshToken);
+
+		var stored = await _db.RefreshTokens
+			.Include(t => t.User)
+			.FirstOrDefaultAsync(t => t.TokenHash == hash);
+
+		var invalid = Unauthorized(new { message = "Invalid refresh token." });
+		if (stored is null) return invalid;
+
+		if (stored.RevokedAAt is not null)
+		{
+			var active = await _db.RefreshTokens
+				.Where(t => t.UserId == stored.UserId && t.RevokedAt == nul)
+				.ToListAsync();
+
+			foreach (var t in active) t.RevokedAt = DateTime.UtcNow;
+			await _db.SaveChangesAsync();
+			return invalid;
 }
 
