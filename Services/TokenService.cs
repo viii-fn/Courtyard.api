@@ -2,17 +2,19 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Options;
+using Courtyard.api.Options;
 using Courtyard.api.Models;
 
 namespace Courtyard.api.Services;
 
 public class TokenService
 {
-	private readonly IConfiguration _config;
+	private readonly JwtOptions _jwt
 
-	public TokenService(IConfiguration _config)
+	public TokenService(IOptions<JwtOptions> options)
 	{
-		_config = config;
+		_jwt = options.Value;
 	}
 
 	public string CreateToken(User user)
@@ -23,15 +25,15 @@ public class TokenService
 			new Claim("email", user.Email)
 		};
 
-		var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+		var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.key));
 
 		var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
 		var token = new JwtSecurityToken(
-				issuer: _config["Jwt:Issuer"],
-				audience: _config["Jwt:Audience"],
+				issuer: _jwt.Issuer,
+				audience: _jwt.Audience,
 				claims: claims,
-				expire: DateTime.UtcNow.AddMinutes(60),
+				expire: DateTime.UtcNow.AddMinutes(_jwt.AccessTokenMinutes),
 				signingCredentials: creds);
 
 		return new JwtSecurityTokenHandler().WriteToken(token);
