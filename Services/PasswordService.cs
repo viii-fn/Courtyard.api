@@ -2,7 +2,7 @@ using BCryptNet = BCrypt.Net.BCrypt;
 
 namespace Courtyard.api.Services;
 
-public interface IPasswordService
+public class PasswordService : IPasswordService
 {
 	private const int WorkFactor = 12;
 
@@ -10,5 +10,5 @@ public interface IPasswordService
 		BCryptNet.HashPassword(password, WorkFactor);
 
 	public bool Verify(string password, string hash) =>
-		BCrypt.Verify(password, hash);
+		BCryptNet.Verify(password, hash);
 }

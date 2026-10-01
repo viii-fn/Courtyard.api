@@ -1,10 +1,10 @@
-using BCrypt.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Courtyard.api.Data;
 using Courtyard.api.Models;
 using Courtyard.api.Services;
+using Courtyard.api.Dtos;
 
 namespace Courtyard.api.Controllers;
 
@@ -14,6 +14,7 @@ public class AuthController : ControllerBase
 {
 	private readonly AppDbContext _db;
 	private readonly TokenService _tokens;
+	private readonly IPasswordService _passwords;
 
 	public AuthController(AppDbContext db, TokenService tokens, IPasswordService passwords)
 	{
@@ -32,7 +33,7 @@ public class AuthController : ControllerBase
 		var user = new User
 		{
 			Email = email,
-			PasswordHash = passwords.Hash(req.Password)
+			PasswordHash = _passwords.Hash(req.Password)
 		};
 
 		_db.Users.Add(user);
@@ -40,16 +41,21 @@ public class AuthController : ControllerBase
 
 		return Ok(new { token = _tokens.CreateToken(user) });
 	}
-}
 
-[HttpPost("login")]
-public async Task<IActionResult> Login(AuthRequest req)
-{
-	var email = req.Email.Trim().ToLowerInvariant();
+	[HttpPost("login")]
+	public async Task<IActionResult> Login(AuthRequest req)
+	{
+		var email = req.Email.Trim().ToLowerInvariant();
 
-	var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+		var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
 
-	if (user is null || !_passwords.Verify(req.Password, user.PasswordHash)) return Unauthorized(new { token = _tokens.CreateToken(user) });
+		if (user is null || !_passwords.Verify(req.Password, user.PasswordHash))
+		{
+			return Unauthorized(new { message = "Invalid Email or Password." });
+		}
+
+		return Ok(new { token = _tokens.CreateToken(user) });
+	}
 
 	[Authorize]
 	[HttpGet("me")]

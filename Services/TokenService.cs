@@ -10,7 +10,7 @@ namespace Courtyard.api.Services;
 
 public class TokenService
 {
-	private readonly JwtOptions _jwt
+	private readonly JwtOptions _jwt;
 
 	public TokenService(IOptions<JwtOptions> options)
 	{
@@ -25,7 +25,7 @@ public class TokenService
 			new Claim("email", user.Email)
 		};
 
-		var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.key));
+		var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Key));
 
 		var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -33,7 +33,7 @@ public class TokenService
 				issuer: _jwt.Issuer,
 				audience: _jwt.Audience,
 				claims: claims,
-				expire: DateTime.UtcNow.AddMinutes(_jwt.AccessTokenMinutes),
+				expires: DateTime.UtcNow.AddMinutes(_jwt.AccessTokenMinutes),
 				signingCredentials: creds);
 
 		return new JwtSecurityTokenHandler().WriteToken(token);

@@ -21,7 +21,7 @@ builder.Services.AddOptions<JwtOptions>()
 var jwt = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? throw new InvalidOperationException("Jwt cofiguration section is missing.");
 
 builder.Services.AddScoped<TokenService>();
-builder.Services.AddSingleton<IPasswordService>();
+builder.Services.AddSingleton<IPasswordService, PasswordService>();
 
 builder.Services.AddSingleton<TokenService>();
 
@@ -36,7 +36,7 @@ builder.Services
 			ValidateAudience = true,
 			ValidAudience = jwt.Audience,
 			ValidateLifetime = true,
-			ValidateIssuerSigninKey = true,
+			ValidateIssuerSigningKey = true,
 			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Key)),
 			ClockSkew = TimeSpan.Zero
 		};
