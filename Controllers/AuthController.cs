@@ -109,5 +109,19 @@ public class AuthController : ControllerBase
 		stored.RevokedAt = DateTime.UtcNow;
 		return Ok(await IssueTokensAsync(stored.User));
 	}
+
+	[HttpPost("logout")]
+	public async Task<IActionResult> Logout(RefreshRequest req)
+	{
+		var hash = TokenService.Hash(req.RefreshToken);
+		var stored = await _db.ReferenceTokens.FirstOrDefaultAsync(t => t.TokenHash == hash);
+		
+		if (stored is not null && stored.RevokedAt is null)
+		{
+			stored.RevokedAt = DateTime.UtcNow;
+			await _db.SaveChangesAsync();
+		}
+
+		return NoContent();
 }
 
