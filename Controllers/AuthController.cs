@@ -21,7 +21,7 @@ public class AuthController : ControllerBase
 		_tokens = tokens;
 	}
 
-	[HttpPost("register")]
+	[HttpPost("signup")]
 	public async Task<IActionResult> Register(AuthRequest req)
 	{
 		var email = req.Email.Trim().ToLowerInvariant();
@@ -40,4 +40,7 @@ public class AuthController : ControllerBase
 		return Ok(new { token = _tokens.CreateToken(user) });
 	}
 }
+
+[HttpPost("login")]
+public asybc
 
