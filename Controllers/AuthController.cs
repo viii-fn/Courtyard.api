@@ -102,5 +102,12 @@ public class AuthController : ControllerBase
 			foreach (var t in active) t.RevokedAt = DateTime.UtcNow;
 			await _db.SaveChangesAsync();
 			return invalid;
+		}
+
+		if (DateTime.UtcNow >= stored.ExpiredAt) return invalid;
+
+		stored.RevokedAt = DateTime.UtcNow;
+		return Ok(await IssueTokensAsync(stored.User));
+	}
 }
 
