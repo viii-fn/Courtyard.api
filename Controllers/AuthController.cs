@@ -39,10 +39,10 @@ public class AuthController : ControllerBase
 		_db.Users.Add(user);
 		await _db.SaveChangesAsync();
 
-		return Ok(new { token = _tokens.CreateToken(user) });
+		return Ok(await IssueTokenAsync(user));
 	}
 
-	private async Task<AuthResponse> IssueTokenAsync(User user)
+	private async Task<AuthResponse> IssueTokensAsync(User user)
 	{
 		var rawRefresh = _tokens.GenerateRefreshToken();
 
@@ -55,7 +55,8 @@ public class AuthController : ControllerBase
 		});
 
 		await _db.SaveChangesAsync();
-		return new AuthResponse(_tokens.CreatedToken(user), rawRefresh);
+		return new AuthResponse(_tokens.CreateToken(user), rawRefresh);
+	}
 
 	[HttpPost("login")]
 	public async Task<IActionResult> Login(AuthRequest req)
@@ -123,5 +124,6 @@ public class AuthController : ControllerBase
 		}
 
 		return NoContent();
+	}
 }
 
