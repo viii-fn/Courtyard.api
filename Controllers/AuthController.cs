@@ -39,7 +39,7 @@ public class AuthController : ControllerBase
 		_db.Users.Add(user);
 		await _db.SaveChangesAsync();
 
-		return Ok(await IssueTokenAsync(user));
+		return Ok(await IssueTokensAsync(user));
 	}
 
 	private async Task<AuthResponse> IssueTokensAsync(User user)
@@ -48,7 +48,7 @@ public class AuthController : ControllerBase
 
 		_db.RefreshTokens.Add(new RefreshToken
 		{
-			User.Id = user.Id,
+			UserId = user.Id,
 			TokenHash = TokenService.Hash(rawRefresh),
 			CreatedAt = DateTime.UtcNow,
 			ExpiresAt = _tokens.RefreshTokenExpiry()
@@ -70,7 +70,7 @@ public class AuthController : ControllerBase
 			return Unauthorized(new { message = "Invalid Email or Password." });
 		}
 
-		return Ok(await IssueTokenAsync(user));
+		return Ok(await IssueTokensAsync(user));
 	}
 
 	[Authorize]
@@ -79,7 +79,7 @@ public class AuthController : ControllerBase
 	{
 		var userId = User.FindFirst("userId")?.Value;
 		var email = User.FindFirst("email")?.Value;
-		return Ok(await IssueTokenAsync(user));
+		return Ok(new { userId, email })
 	}
 
 	[HttpPost("refresh")]
