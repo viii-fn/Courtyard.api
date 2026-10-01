@@ -42,5 +42,21 @@ public class AuthController : ControllerBase
 }
 
 [HttpPost("login")]
-public asybc
+public async Task<IActionResult> Login(AuthRequest req)
+{
+	var email = req.Email.Trim().ToLowerInvariant();
+
+	var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+	if (user is null || !Bcrypt.Net.BCrypt.Verify(req.Password, user.PasswordHash)) return Unauthorized(new { token = _tokens.CreateToken(user) });
+
+	[Authorize]
+	[HttpGet("me")]
+	public IActionResult Me()
+	{
+		var userId = User.FindFirst("userId")?.Value;
+		var email = User.FindFirst("email")?.Value;
+		return Ok(new { userId, email });
+	}
+}
 
