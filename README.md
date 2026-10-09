@@ -33,12 +33,14 @@ Rules for the name you pass:
 
 ## One-time setup (install the template)
 
-1. Put the `courtyard-auth-template` folder somewhere permanent, for example
-   `~/templates/courtyard-auth-template`.
-2. Install it:
+1. Clone the template
+   ```
+   git clone https://github.com/viii-fn/Courtyard.api
+   ```.
+3. Install it:
 
 ```
-dotnet new install ~/templates/courtyard-auth-template
+dotnet new install Courtyard.api
 ```
 
 3. Check it is listed:
