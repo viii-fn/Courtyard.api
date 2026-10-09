@@ -34,10 +34,12 @@ Rules for the name you pass:
 ## One-time setup (install the template)
 
 1. Clone the template
+   
    ```
    git clone https://github.com/viii-fn/Courtyard.api
-   ```.
-3. Install it:
+   ```
+   
+2. Install it:
 
 ```
 dotnet new install Courtyard.api
