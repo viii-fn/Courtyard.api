@@ -35,9 +35,9 @@ Rules for the name you pass:
 
 1. Clone the template
    
-   ```
-   git clone https://github.com/viii-fn/Courtyard.api
-   ```
+```
+git clone https://github.com/viii-fn/Courtyard.api
+```
    
 2. Install it:
 
